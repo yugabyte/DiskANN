@@ -161,7 +161,7 @@ void build_incremental_index(const std::string &data_path, diskann::IndexWritePa
     using LabelT = uint32_t;
 
     size_t current_point_offset = points_to_skip;
-    const size_t last_point_threshold = points_to_skip + max_points_to_insert;
+    size_t last_point_threshold = points_to_skip + max_points_to_insert;
 
     bool enable_tags = true;
     using TagT = uint32_t;
@@ -209,6 +209,7 @@ void build_incremental_index(const std::string &data_path, diskann::IndexWritePa
     if (points_to_skip + max_points_to_insert > num_points)
     {
         max_points_to_insert = num_points - points_to_skip;
+        last_point_threshold = num_points;
         std::cerr << "WARNING: Reducing max_points_to_insert to " << max_points_to_insert
                   << " points since the data file has only that many" << std::endl;
     }
@@ -330,6 +331,7 @@ void build_incremental_index(const std::string &data_path, diskann::IndexWritePa
              start += points_per_checkpoint, current_point_offset += points_per_checkpoint)
         {
             const size_t end = std::min(start + points_per_checkpoint, last_point_threshold);
+            std::cout << std::endl << "Last Point Threshold is:" << last_point_threshold << std::endl;
             std::cout << std::endl << "Inserting from " << start << " to " << end << std::endl;
 
             load_aligned_bin_part(data_path, data, start, end - start);
