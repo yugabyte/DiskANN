@@ -23,10 +23,6 @@ void IndexFactory::check_config()
 
     if (_config->pq_dist_build)
     {
-        if (_config->dynamic_index)
-            throw ANNException("ERROR: Dynamic Indexing not supported with PQ distance based "
-                               "index construction",
-                               -1, __FUNCSIG__, __FILE__, __LINE__);
         if (_config->metric == diskann::Metric::INNER_PRODUCT)
             throw ANNException("ERROR: Inner product metrics not yet supported "
                                "with PQ distance "

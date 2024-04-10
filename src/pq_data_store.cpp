@@ -24,7 +24,8 @@ PQDataStore<data_t>::PQDataStore(size_t dim, location_t num_points, size_t num_p
                                  std::unique_ptr<QuantizedDistance<data_t>> pq_distance_fn,
                                  const std::string &codebook_path)
 #endif
-    : AbstractDataStore<data_t>(num_points, num_pq_chunks), _num_chunks(num_pq_chunks)
+    : AbstractDataStore<data_t>(num_points, num_pq_chunks), _num_chunks(num_pq_chunks),
+      _pq_table(std::make_unique<FixedChunkPQTable>())
 {
     if (num_pq_chunks > dim)
     {
@@ -46,7 +47,10 @@ PQDataStore<data_t>::PQDataStore(size_t dim, location_t num_points, size_t num_p
 #else
     if (!codebook_path.empty())
     {
+        std::cout << "Start Loading Codebook." << std::endl;
         _pq_table->load_pq_centroid_bin(codebook_path.c_str(), num_pq_chunks);
+        _pq_distance_fn->load_pivot_data(codebook_path.c_str(), num_pq_chunks);
+        std::cout << "Finish Loading Codebook." << std::endl;
     }
 #endif
 }
@@ -154,6 +158,7 @@ template <typename data_t> void PQDataStore<data_t>::set_vector(const location_t
     uint64_t num_chunks = _num_chunks;
 
     std::vector<float> vector_float(full_dimension);
+
     diskann::convert_types<data_t, float>(vector, vector_float.data(), 1, full_dimension);
     std::vector<uint8_t> compressed_vector(num_chunks * sizeof(uint32_t));
     std::vector<data_t> compressed_vector_T(num_chunks);
@@ -162,7 +167,7 @@ template <typename data_t> void PQDataStore<data_t>::set_vector(const location_t
                                             full_dimension,
                                             num_chunks, compressed_vector);
 
-    diskann::convert_types<uint8_t, data_t>(compressed_vector.data(), compressed_vector_T.data(), 1, full_dimension);
+    diskann::convert_types<uint8_t, data_t>(compressed_vector.data(), compressed_vector_T.data(), 1, num_chunks);
 
     size_t offset_in_data = loc * _aligned_dim;
     memset(_quantized_data + offset_in_data, 0, _aligned_dim * sizeof(data_t));
@@ -170,8 +175,7 @@ template <typename data_t> void PQDataStore<data_t>::set_vector(const location_t
 
     if (_distance_fn->preprocessing_required())
     {
-        _distance_fn->preprocess_base_points(reinterpret_cast<data_t *>(_quantized_data) + offset_in_data, _aligned_dim,
-                                             1);
+        _distance_fn->preprocess_base_points(reinterpret_cast<data_t *>(_quantized_data) + offset_in_data, _aligned_dim, 1);
     }
 }
 

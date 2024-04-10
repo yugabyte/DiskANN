@@ -425,9 +425,6 @@ template <typename T, typename TagT = uint32_t, typename LabelT = uint32_t> clas
     bool _pq_dist = false;
     bool _use_opq = false;
     size_t _num_pq_chunks = 0;
-    // REFACTOR
-    // uint8_t *_pq_data = nullptr;
-    std::shared_ptr<QuantizedDistance<T>> _pq_distance_fn = nullptr;
     std::shared_ptr<AbstractDataStore<T>> _pq_data_store = nullptr;
     bool _pq_generated = false;
 

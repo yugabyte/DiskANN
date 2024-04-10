@@ -56,6 +56,9 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config,
         throw ANNException("ERROR: Dynamic Indexing must have tags enabled.", -1, __FUNCSIG__, __FILE__, __LINE__);
     }
 
+    _data_store = data_store;
+    _graph_store = std::move(graph_store);
+
     if (_pq_dist)
     {
         if (_dist_metric == diskann::Metric::INNER_PRODUCT)
@@ -63,6 +66,11 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config,
                                "with PQ distance "
                                "base index",
                                -1, __FUNCSIG__, __FILE__, __LINE__);
+        _pq_data_store = pq_data_store;
+    }
+    else
+    {
+        _pq_data_store = _data_store;
     }
 
     if (_dynamic_index && _num_frozen_pts == 0)
@@ -78,11 +86,6 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config,
     const size_t total_internal_points = _max_points + _num_frozen_pts;
 
     _start = (uint32_t)_max_points;
-
-    _data_store = data_store;
-    _pq_data_store = pq_data_store;
-    _graph_store = std::move(graph_store);
-
     _locks = std::vector<non_recursive_mutex>(total_internal_points);
     if (_enable_tags)
     {
