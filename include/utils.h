@@ -12,6 +12,10 @@
 #include <malloc.h>
 #endif
 
+#ifdef __clang__
+#include <xmmintrin.h>
+#endif
+
 #ifdef _WINDOWS
 #include <Windows.h>
 typedef HANDLE FileHandle;
