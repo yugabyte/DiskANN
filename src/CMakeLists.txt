@@ -19,6 +19,7 @@ else()
     endif()
 
     add_library(${PROJECT_NAME} ${CPP_SOURCES})
+    target_link_libraries(${PROJECT_NAME} ${DISKANN_ASYNC_LIB})
     install(TARGETS ${PROJECT_NAME} LIBRARY)
 
     add_library(${PROJECT_NAME}_s STATIC ${CPP_SOURCES})
