@@ -12,7 +12,7 @@
 #include <malloc.h>
 #endif
 
-#ifdef __clang__
+#if defined(__clang__) && !defined(__aarch64__)
 #include <xmmintrin.h>
 #endif
 

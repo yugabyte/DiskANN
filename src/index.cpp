@@ -17,7 +17,7 @@
 #include "gperftools/malloc_extension.h"
 #endif
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) && !defined(__aarch64__)
 #include <xmmintrin.h>
 #endif
 
