@@ -21,7 +21,7 @@
 #include "parameters.h"
 #include "memory_mapper.h"
 #include "partition.h"
-#ifdef _WINDOWS
+#if defined(_WINDOWS) && !defined(__aarch64__)
 #include <xmmintrin.h>
 #endif
 
