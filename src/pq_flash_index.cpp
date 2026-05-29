@@ -352,21 +352,25 @@ void PQFlashIndex<T, LabelT>::generate_cache_list_from_sample_queries(std::strin
 }
 
 template <typename T, typename LabelT>
-void PQFlashIndex<T, LabelT>::cache_bfs_levels(uint64_t num_nodes_to_cache, std::vector<uint32_t> &node_list,
-                                               const bool shuffle)
+void PQFlashIndex<T, LabelT>::cache_bfs_levels(
+    uint64_t num_nodes_to_cache, std::vector<uint32_t> &node_list, const bool shuffle,
+    float max_node_fraction_to_cache)
 {
     std::random_device rng;
     std::mt19937 urng(rng());
 
     tsl::robin_set<uint32_t> node_set;
 
-    // Do not cache more than 10% of the nodes in the index
-    uint64_t tenp_nodes = (uint64_t)(std::round(this->_num_points * 0.1));
-    if (num_nodes_to_cache > tenp_nodes)
+    // Do not cache more than the specified fraction of the nodes in the index
+    uint64_t max_nodes_to_cache =
+        (uint64_t)(std::round(this->_num_points * max_node_fraction_to_cache));
+    if (num_nodes_to_cache > max_nodes_to_cache)
     {
-        diskann::cout << "Reducing nodes to cache from: " << num_nodes_to_cache << " to: " << tenp_nodes
-                      << "(10 percent of total nodes:" << this->_num_points << ")" << std::endl;
-        num_nodes_to_cache = tenp_nodes == 0 ? 1 : tenp_nodes;
+        diskann::cout << "Reducing nodes to cache from: " << num_nodes_to_cache << " to: "
+                      << max_nodes_to_cache
+                      << "(" << max_node_fraction_to_cache << " of total nodes: "
+                      << this->_num_points << ")" << std::endl;
+        num_nodes_to_cache = max_nodes_to_cache == 0 ? 1 : max_nodes_to_cache;
     }
     diskann::cout << "Caching " << num_nodes_to_cache << "..." << std::endl;
 

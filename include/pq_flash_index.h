@@ -59,7 +59,8 @@ template <typename T, typename LabelT = uint32_t> class PQFlashIndex
 #endif
 
     DISKANN_DLLEXPORT void cache_bfs_levels(uint64_t num_nodes_to_cache, std::vector<uint32_t> &node_list,
-                                            const bool shuffle = false);
+                                            const bool shuffle = false,
+                                            float max_node_fraction_to_cache = 0.1);
 
     DISKANN_DLLEXPORT void cached_beam_search(const T *query, const uint64_t k_search, const uint64_t l_search,
                                               uint64_t *res_ids, float *res_dists, const uint64_t beam_width,
